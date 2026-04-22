@@ -28,11 +28,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
 			String token = authHeader.substring(7);
-			if (jwtUtil.isTokenValid(token)) {
+
+			// Only process if not already authenticated
+			if (jwtUtil.isTokenValid(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
+
 				String email = jwtUtil.extractEmail(token);
 				UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
 				UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null,
 						userDetails.getAuthorities());
+
 				SecurityContextHolder.getContext().setAuthentication(auth);
 			}
 		}

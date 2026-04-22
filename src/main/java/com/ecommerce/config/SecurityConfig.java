@@ -22,9 +22,9 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
 				.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll() // public routes
-						.anyRequest().authenticated() // everything else needs JWT
-				).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/register").permitAll()
+						.requestMatchers("/api/auth/login").permitAll().anyRequest().authenticated())
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
@@ -38,5 +38,4 @@ public class SecurityConfig {
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
 		return config.getAuthenticationManager();
 	}
-	
 }
