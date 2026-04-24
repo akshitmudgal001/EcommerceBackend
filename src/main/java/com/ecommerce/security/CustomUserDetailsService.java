@@ -10,18 +10,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        com.ecommerce.entity.User appUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+	// Spring Security calls this automatically during login
+	// We load the user from DB so Spring can verify the password
+	@Override
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        return org.springframework.security.core.userdetails.User
-                .withUsername(appUser.getEmail())
-                .password(appUser.getPassword())
-                .roles(appUser.getRole())
-                .build();
-    }
+		com.ecommerce.entity.User appUser = userRepository.findByEmail(email)
+				.orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+		return org.springframework.security.core.userdetails.User.withUsername(appUser.getEmail())
+				.password(appUser.getPassword()) // BCrypt hashed password
+				.roles(appUser.getRole()) // "USER" or "ADMIN"
+				.build();
+	}
 }

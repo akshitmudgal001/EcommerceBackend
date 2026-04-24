@@ -4,32 +4,32 @@ import axiosInstance from "../api/axiosInstance";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user");
-    return saved ? JSON.parse(saved) : null;
-  });
-
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // On app load, verify the stored token is still valid with the backend
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      axiosInstance.get("/auth/me")
-        .then((res) => {
-          // Token valid — update user info freshly from server
-          setUser(res.data);
-        })
-        .catch(() => {
-          // Token invalid or expired — clear everything
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          setUser(null);
-        })
-        .finally(() => setLoading(false));
-    } else {
+
+    if (!token) {
+      // No token at all — definitely not logged in
       setLoading(false);
+      return;
     }
+
+    // Token exists — ask backend if it's still valid
+    axiosInstance.get("/auth/me")
+      .then((res) => {
+        setUser(res.data); // token valid, restore user
+      })
+      .catch(() => {
+        // Token expired or invalid
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const login = (userData, token) => {
@@ -44,8 +44,7 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  // Don't render anything until token verification is done
-  // This prevents a flash of the login page on refresh when user IS logged in
+  // Show nothing while verifying token — prevents page flash
   if (loading) return null;
 
   return (

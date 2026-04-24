@@ -32,13 +32,13 @@ public class AuthController {
 		return ResponseEntity.ok(authService.login(request));
 	}
 
-	// Called on page refresh to verify token is still valid
+	// Protected endpoint — JwtFilter sets authentication before this runs
+	// @AuthenticationPrincipal gives us the currently logged-in user
 	@GetMapping("/me")
 	public ResponseEntity<AuthResponse> me(@AuthenticationPrincipal UserDetails userDetails) {
 		User user = userRepository.findByEmail(userDetails.getUsername())
 				.orElseThrow(() -> new RuntimeException("User not found"));
 
-		// No token here — frontend already has it, we just confirm it's valid
 		return ResponseEntity.ok(new AuthResponse(null, user.getName(), user.getEmail(), user.getRole()));
 	}
 }
