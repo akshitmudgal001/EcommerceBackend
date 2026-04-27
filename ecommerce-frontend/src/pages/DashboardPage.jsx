@@ -17,7 +17,16 @@ export default function DashboardPage() {
         <h1 className={styles.title}>Dashboard</h1>
         <p className={styles.subtitle}>Welcome, {user?.name}!</p>
         <p style={{ color: "#888", marginBottom: "24px" }}>Role: {user?.role}</p>
-        <button className={styles.btn} onClick={handleLogout}>Logout</button>
+        <button
+          className={styles.btn}
+          onClick={() => navigate("/products")}
+          style={{ marginBottom: "12px" }}
+        >
+          Browse Products
+        </button>
+        <button className={styles.btn} onClick={handleLogout}>
+          Logout
+        </button>
       </div>
     </div>
   );
