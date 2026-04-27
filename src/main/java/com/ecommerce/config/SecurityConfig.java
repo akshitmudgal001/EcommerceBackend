@@ -5,6 +5,7 @@ import com.ecommerce.security.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -18,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity // explicitly enables Spring Security's web support
+@EnableWebSecurity
 public class SecurityConfig {
 
 	@Autowired
@@ -30,40 +31,39 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-				// Disable CSRF — not needed for stateless JWT APIs
+				// Disable CSRF for stateless APIs
 				.csrf(csrf -> csrf.disable())
 
-				// Stateless — no server-side sessions, each request must carry JWT
+				// No sessions — JWT based auth
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-				// Define which routes need authentication
+				// Route security rules
 				.authorizeHttpRequests(auth -> auth
-						// Public routes — no token needed
+
+						// Public auth endpoints
 						.requestMatchers("/api/auth/register").permitAll().requestMatchers("/api/auth/login")
 						.permitAll()
 
-						// All other routes require a valid JWT token
+						// Public product browsing (GET only)
+						.requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+
+						// Everything else requires authentication
 						.anyRequest().authenticated())
 
-				// Wire in our custom authentication provider
-				// This tells Spring to use our DB + BCrypt to verify passwords
+				// Authentication provider (DB + BCrypt)
 				.authenticationProvider(authenticationProvider())
 
-				// Add our JWT filter BEFORE Spring's default login filter
-				// So our filter runs first, reads the token, sets authentication
+				// JWT filter before default auth filter
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
 
-	// This bean connects Spring Security's login mechanism to our database
-	// When authenticationManager.authenticate() is called during login,
-	// it uses this provider to: load user from DB → verify BCrypt password
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setUserDetailsService(customUserDetailsService); // load from DB
-		provider.setPasswordEncoder(passwordEncoder()); // verify BCrypt
+		provider.setUserDetailsService(customUserDetailsService);
+		provider.setPasswordEncoder(passwordEncoder());
 		return provider;
 	}
 
