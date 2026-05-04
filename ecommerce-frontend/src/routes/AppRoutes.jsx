@@ -3,6 +3,7 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import DashboardPage from "../pages/DashboardPage";
 import ProductsPage from "../pages/ProductsPage";
+import ProductDetailPage from "../pages/ProductDetailPage";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function AppRoutes() {
@@ -16,6 +17,9 @@ export default function AppRoutes() {
       }/>
       <Route path="/products" element={
         <ProtectedRoute><ProductsPage /></ProtectedRoute>
+      }/>
+      <Route path="/products/:id" element={
+        <ProtectedRoute><ProductDetailPage /></ProtectedRoute>
       }/>
     </Routes>
   );
