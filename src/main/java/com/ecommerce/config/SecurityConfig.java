@@ -24,36 +24,21 @@ public class SecurityConfig {
 
 	@Autowired
 	private JwtFilter jwtFilter;
-
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http
-				// Disable CSRF for stateless APIs
-				.csrf(csrf -> csrf.disable())
-
-				// No sessions — JWT based auth
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-				// Route security rules
+		http.csrf(csrf -> csrf.disable())
+				.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
-
-						// Public auth endpoints
-						.requestMatchers("/api/auth/register").permitAll().requestMatchers("/api/auth/login")
-						.permitAll()
-
-						// Public product browsing (GET only)
+						// Auth — public
+						.requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+						// Products — GET is public, POST needs JWT
 						.requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-
-						// Everything else requires authentication
+						// Everything else needs JWT
 						.anyRequest().authenticated())
-
-				// Authentication provider (DB + BCrypt)
 				.authenticationProvider(authenticationProvider())
-
-				// JWT filter before default auth filter
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();

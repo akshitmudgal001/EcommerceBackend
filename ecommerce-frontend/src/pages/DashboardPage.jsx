@@ -1,32 +1,40 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import styles from "../styles/auth.module.css";
+import styles from "../styles/dashboard.module.css";
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
   return (
-    <div className={styles.authPage}>
-      <div className={styles.authCard}>
-        <h1 className={styles.title}>Dashboard</h1>
-        <p className={styles.subtitle}>Welcome, {user?.name}!</p>
-        <p style={{ color: "#888", marginBottom: "24px" }}>Role: {user?.role}</p>
-        <button
-          className={styles.btn}
-          onClick={() => navigate("/products")}
-          style={{ marginBottom: "12px" }}
-        >
-          Browse Products
+    <div className={styles.page}>
+      <div className={styles.hero}>
+        <p className={styles.greeting}>Good day, {user?.name}</p>
+        <h1 className={styles.heading}>What are you shopping for today?</h1>
+        <p className={styles.sub}>
+          Browse our catalog, manage your cart, and track your orders.
+        </p>
+        <button className={styles.cta} onClick={() => navigate("/products")}>
+          Browse Products →
         </button>
-        <button className={styles.btn} onClick={handleLogout}>
-          Logout
-        </button>
+      </div>
+
+      <div className={styles.cards}>
+        <div className={styles.card} onClick={() => navigate("/products")}>
+          <div className={styles.cardIcon}>🛍</div>
+          <h3 className={styles.cardTitle}>Products</h3>
+          <p className={styles.cardDesc}>Browse and search our full catalog</p>
+        </div>
+        <div className={styles.card} onClick={() => navigate("/cart")}>
+          <div className={styles.cardIcon}>🛒</div>
+          <h3 className={styles.cardTitle}>My Cart</h3>
+          <p className={styles.cardDesc}>View items and proceed to checkout</p>
+        </div>
+        <div className={styles.card}>
+          <div className={styles.cardIcon}>📦</div>
+          <h3 className={styles.cardTitle}>Orders</h3>
+          <p className={styles.cardDesc}>Track your order history</p>
+        </div>
       </div>
     </div>
   );

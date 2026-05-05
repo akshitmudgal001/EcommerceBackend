@@ -1,3 +1,4 @@
+import { addToCart } from "../api/cartApi";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductById } from "../api/productApi";
@@ -27,9 +28,14 @@ export default function ProductDetailPage() {
   }, [id]);
 
   const handleAddToCart = async () => {
-    // Cart API comes next — wired up in Commit 6
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+    try {
+      await addToCart({ productId: parseInt(id), quantity });
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (err) {
+      const msg = err.response?.data?.error || "Failed to add to cart";
+      alert(msg);
+    }
   };
 
   if (loading) return <div className={styles.center}>Loading...</div>;

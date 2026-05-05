@@ -26,7 +26,6 @@ public class CartServiceImpl implements CartService {
 	@Autowired
 	private ProductRepository productRepository;
 
-	// Converts a CartItem entity into a CartItemResponse DTO
 	private CartItemResponse mapItem(CartItem item) {
 		CartItemResponse r = new CartItemResponse();
 		r.setCartItemId(item.getCartItemId());
@@ -39,7 +38,6 @@ public class CartServiceImpl implements CartService {
 		return r;
 	}
 
-	// Converts a Cart entity into CartResponse DTO
 	private CartResponse mapCart(Cart cart) {
 		List<CartItemResponse> items = cart.getItems().stream().map(this::mapItem).collect(Collectors.toList());
 
@@ -51,14 +49,12 @@ public class CartServiceImpl implements CartService {
 		return response;
 	}
 
-	// Gets existing cart for user, or creates a new one if first time
 	private Cart getOrCreateCart(String email) {
 		User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-
 		return cartRepository.findByUser(user).orElseGet(() -> {
-			Cart newCart = new Cart();
-			newCart.setUser(user);
-			return cartRepository.save(newCart);
+			Cart c = new Cart();
+			c.setUser(user);
+			return cartRepository.save(c);
 		});
 	}
 
@@ -69,47 +65,82 @@ public class CartServiceImpl implements CartService {
 		Product product = productRepository.findById(request.getProductId())
 				.orElseThrow(() -> new RuntimeException("Product not found"));
 
-		// Validate stock
-		if (!product.getActive()) {
+		if (!product.getActive())
 			throw new RuntimeException("Product is not available");
-		}
-		if (product.getStock() < request.getQuantity()) {
+		if (product.getStock() < request.getQuantity())
 			throw new RuntimeException("Not enough stock. Available: " + product.getStock());
-		}
 
-		// Check if this product already exists in the cart
-		Optional<CartItem> existingItem = cartItemRepository.findByCartAndProduct(cart, product);
+		Optional<CartItem> existing = cartItemRepository.findByCartAndProduct(cart, product);
 
-		if (existingItem.isPresent()) {
-			// Product already in cart — just increase quantity
-			CartItem item = existingItem.get();
+		if (existing.isPresent()) {
+			CartItem item = existing.get();
 			int newQty = item.getQuantity() + request.getQuantity();
-
-			if (newQty > product.getStock()) {
-				throw new RuntimeException("Not enough stock for total quantity");
-			}
+			if (newQty > product.getStock())
+				throw new RuntimeException("Total quantity exceeds available stock");
 			item.setQuantity(newQty);
 			cartItemRepository.save(item);
 		} else {
-			// New product — create a new cart item
-			CartItem newItem = new CartItem();
-			newItem.setCart(cart);
-			newItem.setProduct(product);
-			newItem.setQuantity(request.getQuantity());
-			newItem.setPrice(product.getPrice()); // snapshot current price
-			cartItemRepository.save(newItem);
+			CartItem item = new CartItem();
+			item.setCart(cart);
+			item.setProduct(product);
+			item.setQuantity(request.getQuantity());
+			item.setPrice(product.getPrice());
+			cartItemRepository.save(item);
 		}
 
-		// Reload cart to get fresh data
-		Cart updatedCart = cartRepository.findById(cart.getCartId())
-				.orElseThrow(() -> new RuntimeException("Cart not found"));
-
-		return mapCart(updatedCart);
+		return mapCart(
+				cartRepository.findById(cart.getCartId()).orElseThrow(() -> new RuntimeException("Cart not found")));
 	}
 
 	@Override
 	public CartResponse getCart(String userEmail) {
+		return mapCart(getOrCreateCart(userEmail));
+	}
+
+	@Override
+	public CartResponse updateQuantity(String userEmail, Long cartItemId, Integer quantity) {
 		Cart cart = getOrCreateCart(userEmail);
-		return mapCart(cart);
+
+		CartItem item = cartItemRepository.findById(cartItemId)
+				.orElseThrow(() -> new RuntimeException("Cart item not found"));
+
+		// Security — ensure item belongs to this user's cart
+		if (!item.getCart().getCartId().equals(cart.getCartId()))
+			throw new RuntimeException("Item does not belong to your cart");
+
+		if (quantity <= 0) {
+			cartItemRepository.delete(item);
+		} else {
+			if (quantity > item.getProduct().getStock())
+				throw new RuntimeException("Not enough stock");
+			item.setQuantity(quantity);
+			cartItemRepository.save(item);
+		}
+
+		return mapCart(
+				cartRepository.findById(cart.getCartId()).orElseThrow(() -> new RuntimeException("Cart not found")));
+	}
+
+	@Override
+	public CartResponse removeFromCart(String userEmail, Long cartItemId) {
+		Cart cart = getOrCreateCart(userEmail);
+
+		CartItem item = cartItemRepository.findById(cartItemId)
+				.orElseThrow(() -> new RuntimeException("Cart item not found"));
+
+		if (!item.getCart().getCartId().equals(cart.getCartId()))
+			throw new RuntimeException("Item does not belong to your cart");
+
+		cartItemRepository.delete(item);
+
+		return mapCart(
+				cartRepository.findById(cart.getCartId()).orElseThrow(() -> new RuntimeException("Cart not found")));
+	}
+
+	@Override
+	public void clearCart(String userEmail) {
+		Cart cart = getOrCreateCart(userEmail);
+		cart.getItems().clear();
+		cartRepository.save(cart);
 	}
 }
