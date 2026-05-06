@@ -32,10 +32,12 @@ public class SecurityConfig {
 		http.csrf(csrf -> csrf.disable())
 				.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
-						// Auth — public
+						// Public
 						.requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-						// Products — GET is public, POST needs JWT
+						// Products GET — public browsing
 						.requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+						// Admin only routes
+						.requestMatchers("/api/admin/**").hasRole("ADMIN")
 						// Everything else needs JWT
 						.anyRequest().authenticated())
 				.authenticationProvider(authenticationProvider())
