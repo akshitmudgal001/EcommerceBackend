@@ -12,18 +12,11 @@ export default function Navbar() {
 
   useEffect(() => {
     if (user) {
-      getCart()
-        .then(res => setCartCount(res.data.totalItems || 0))
-        .catch(() => {});
+      getCart().then(res => setCartCount(res.data.totalItems || 0)).catch(() => {});
     }
   }, [user, location.pathname]);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => location.pathname.startsWith(path);
 
   return (
     <nav className={styles.nav}>
@@ -33,32 +26,26 @@ export default function Navbar() {
         </span>
 
         <div className={styles.links}>
-          <button
-            className={`${styles.link} ${isActive("/dashboard") ? styles.active : ""}`}
-            onClick={() => navigate("/dashboard")}
-          >
-            Home
-          </button>
-          <button
-            className={`${styles.link} ${isActive("/products") ? styles.active : ""}`}
-            onClick={() => navigate("/products")}
-          >
-            Products
-          </button>
-          <button
-            className={`${styles.link} ${isActive("/cart") ? styles.active : ""}`}
-            onClick={() => navigate("/cart")}
-          >
+          <button className={`${styles.link} ${isActive("/dashboard") ? styles.active : ""}`}
+            onClick={() => navigate("/dashboard")}>Home</button>
+          <button className={`${styles.link} ${isActive("/products") ? styles.active : ""}`}
+            onClick={() => navigate("/products")}>Products</button>
+          <button className={`${styles.link} ${isActive("/cart") ? styles.active : ""}`}
+            onClick={() => navigate("/cart")}>
             Cart
-            {cartCount > 0 && (
-              <span className={styles.badge}>{cartCount}</span>
-            )}
+            {cartCount > 0 && <span className={styles.badge}>{cartCount}</span>}
           </button>
+          {user?.role === "ADMIN" && (
+            <button className={`${styles.link} ${styles.adminLink} ${isActive("/admin") ? styles.active : ""}`}
+              onClick={() => navigate("/admin")}>
+              Admin Panel
+            </button>
+          )}
         </div>
 
         <div className={styles.right}>
           <span className={styles.userName}>{user?.name}</span>
-          <button className={styles.logoutBtn} onClick={handleLogout}>
+          <button className={styles.logoutBtn} onClick={() => { logout(); navigate("/login"); }}>
             Logout
           </button>
         </div>

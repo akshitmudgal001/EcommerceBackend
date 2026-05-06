@@ -83,4 +83,10 @@
   border-radius: 6px;
   transition: background 0.15s;
 }
-.logoutBtn:hover { background: rgba(255,255,255,0.18); }
+.logoutBtn:hover { background: rgba(255,255,255,0.18); }.adminLink {
+  color: #f59e0b !important;
+}
+.adminLink:hover {
+  color: #fbbf24 !important;
+  background: rgba(245, 158, 11, 0.15) !important;
+}

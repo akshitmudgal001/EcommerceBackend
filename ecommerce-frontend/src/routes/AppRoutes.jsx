@@ -5,7 +5,9 @@ import DashboardPage from "../pages/DashboardPage";
 import ProductsPage from "../pages/ProductsPage";
 import ProductDetailPage from "../pages/ProductDetailPage";
 import CartPage from "../pages/CartPage";
+import AdminPage from "../pages/admin/AdminPage";
 import ProtectedRoute from "../components/ProtectedRoute";
+import AdminRoute from "../components/AdminRoute";
 import Layout from "../components/Layout";
 
 export default function AppRoutes() {
@@ -16,24 +18,19 @@ export default function AppRoutes() {
       <Route path="/register" element={<RegisterPage />} />
 
       <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Layout><DashboardPage /></Layout>
-        </ProtectedRoute>
+        <ProtectedRoute><Layout><DashboardPage /></Layout></ProtectedRoute>
       }/>
       <Route path="/products" element={
-        <ProtectedRoute>
-          <Layout><ProductsPage /></Layout>
-        </ProtectedRoute>
+        <ProtectedRoute><Layout><ProductsPage /></Layout></ProtectedRoute>
       }/>
       <Route path="/products/:id" element={
-        <ProtectedRoute>
-          <Layout><ProductDetailPage /></Layout>
-        </ProtectedRoute>
+        <ProtectedRoute><Layout><ProductDetailPage /></Layout></ProtectedRoute>
       }/>
       <Route path="/cart" element={
-        <ProtectedRoute>
-          <Layout><CartPage /></Layout>
-        </ProtectedRoute>
+        <ProtectedRoute><Layout><CartPage /></Layout></ProtectedRoute>
+      }/>
+      <Route path="/admin/*" element={
+        <AdminRoute><AdminPage /></AdminRoute>
       }/>
     </Routes>
   );
