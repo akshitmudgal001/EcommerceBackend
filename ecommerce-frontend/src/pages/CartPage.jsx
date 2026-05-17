@@ -51,14 +51,7 @@ export default function CartPage() {
     }
   };
 
-  const handleCheckout = async () => {
-    setCheckingOut(true);
-    // Orders module — coming next session
-    setTimeout(() => {
-      alert("Order placed successfully! (Orders module coming soon)");
-      setCheckingOut(false);
-    }, 1200);
-  };
+  const handleCheckout = () => navigate("/checkout");
 
   if (loading) return <div className={styles.center}>Loading cart...</div>;
   if (error)   return <div className={styles.center}>{error}</div>;
