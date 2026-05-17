@@ -13,17 +13,19 @@ import java.util.List;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		com.ecommerce.entity.User appUser = userRepository.findByEmail(email)
-				.orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        com.ecommerce.entity.User appUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
-		// Use ROLE_ prefix explicitly so hasRole() and hasAuthority() both work
-		return org.springframework.security.core.userdetails.User.withUsername(appUser.getEmail())
-				.password(appUser.getPassword())
-				.authorities(List.of(new SimpleGrantedAuthority("ROLE_" + appUser.getRole()))).build();
-	}
+        // Use ROLE_ prefix explicitly so hasRole() and hasAuthority() both work
+        return org.springframework.security.core.userdetails.User
+                .withUsername(appUser.getEmail())
+                .password(appUser.getPassword())
+                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + appUser.getRole())))
+                .build();
+    }
 }
