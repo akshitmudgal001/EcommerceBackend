@@ -1,0 +1,140 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  font-family: 'Georgia', serif;
+}
+
+.header { margin-bottom: 32px; }
+.title { font-size: 30px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+.sub { font-size: 14px; color: #888; }
+
+.empty { text-align: center; padding: 80px 24px; }
+.emptyIcon { font-size: 52px; margin-bottom: 16px; }
+.emptyTitle { font-size: 20px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+.emptySub { font-size: 14px; color: #888; margin-bottom: 28px; }
+.shopBtn {
+  padding: 12px 28px; background: #1a1a1a; color: white;
+  border: none; border-radius: 9px; font-size: 15px;
+  font-weight: 500; cursor: pointer;
+}
+.shopBtn:hover { background: #333; }
+
+.list { display: flex; flex-direction: column; gap: 14px; }
+
+.orderCard {
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.orderHeader:hover { background: #fafafa; }
+
+.orderMeta { display: flex; flex-direction: column; gap: 4px; }
+.orderId { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+.orderDate { font-size: 13px; color: #888; }
+
+.orderRight { display: flex; align-items: center; gap: 16px; }
+.orderTotal { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+.expandIcon { font-size: 11px; color: #aaa; }
+
+/* Status badges */
+.statusBadge {
+  display: inline-block; padding: 4px 12px;
+  border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+.blue   { background: #eff6ff; color: #1d4ed8; }
+.gray   { background: #f3f4f6; color: #374151; }
+.amber  { background: #fffbeb; color: #92400e; }
+.green  { background: #f0fdf4; color: #166534; }
+.red    { background: #fef2f2; color: #991b1b; }
+
+/* Order body */
+.orderBody {
+  padding: 0 20px 20px;
+  border-top: 1px solid #f5f5f5;
+}
+
+.orderItems { display: flex; flex-direction: column; gap: 10px; padding-top: 16px; }
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: #f9f9f8;
+  border-radius: 8px;
+}
+
+.itemThumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; }
+.itemInfo { flex: 1; }
+.itemName { font-size: 14px; font-weight: 500; color: #1a1a1a; display: block; }
+.itemMeta { font-size: 12px; color: #888; margin-top: 2px; }
+.itemTotal { font-size: 14px; font-weight: 600; color: #1a1a1a; white-space: nowrap; }
+
+/* Price breakdown */
+.breakdown {
+  margin-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #555;
+}
+
+.totalRow {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+.free { color: #16a34a; font-weight: 500; }
+
+/* Address */
+.addressBox {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: #f9f9f8;
+  border-radius: 8px;
+}
+
+.addressLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.addressText { font-size: 13px; color: #444; line-height: 1.7; }
+
+.paymentInfo {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #888;
+}
+
+.paid    { color: #16a34a; font-weight: 600; }
+.pending { color: #d97706; font-weight: 600; }
+
+.center { text-align: center; padding: 80px; color: #888; font-family: 'Georgia', serif; }

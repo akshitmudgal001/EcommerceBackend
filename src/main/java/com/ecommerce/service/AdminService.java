@@ -20,4 +20,8 @@ public interface AdminService {
 
 	// Carts
 	List<AdminCartView> getAllCarts();
+
+	List<AdminOrderResponse> getAllOrders();
+
+	void updateOrderStatus(Long orderId, String status);
 }

@@ -2,7 +2,9 @@ package com.ecommerce.controller;
 
 import com.ecommerce.dto.*;
 import com.ecommerce.service.AdminService;
+
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,18 +29,22 @@ public class AdminController {
 
 	@PostMapping("/products")
 	public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody AdminProductRequest request) {
+
 		return ResponseEntity.ok(adminService.createProduct(request));
 	}
 
 	@PutMapping("/products/{id}")
 	public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id,
 			@Valid @RequestBody AdminProductRequest request) {
+
 		return ResponseEntity.ok(adminService.updateProduct(id, request));
 	}
 
 	@DeleteMapping("/products/{id}")
 	public ResponseEntity<Map<String, String>> deleteProduct(@PathVariable Long id) {
+
 		adminService.deleteProduct(id);
+
 		return ResponseEntity.ok(Map.of("message", "Product deactivated"));
 	}
 
@@ -51,7 +57,9 @@ public class AdminController {
 
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
+
 		adminService.deleteUser(id);
+
 		return ResponseEntity.ok(Map.of("message", "User deleted"));
 	}
 
@@ -60,5 +68,21 @@ public class AdminController {
 	@GetMapping("/carts")
 	public ResponseEntity<List<AdminCartView>> getAllCarts() {
 		return ResponseEntity.ok(adminService.getAllCarts());
+	}
+
+	// ── Orders ────────────────────────────────────────────
+
+	@GetMapping("/orders")
+	public ResponseEntity<List<AdminOrderResponse>> getAllOrders() {
+		return ResponseEntity.ok(adminService.getAllOrders());
+	}
+
+	@PutMapping("/orders/{id}/status")
+	public ResponseEntity<Map<String, String>> updateOrderStatus(@PathVariable Long id,
+			@RequestBody Map<String, String> body) {
+
+		adminService.updateOrderStatus(id, body.get("status"));
+
+		return ResponseEntity.ok(Map.of("message", "Status updated"));
 	}
 }
