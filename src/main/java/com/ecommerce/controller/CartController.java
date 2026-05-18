@@ -2,6 +2,7 @@ package com.ecommerce.controller;
 
 import com.ecommerce.dto.AddToCartRequest;
 import com.ecommerce.dto.CartResponse;
+import com.ecommerce.dto.UpdateQuantityRequest;
 import com.ecommerce.service.CartService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +34,9 @@ public class CartController {
 
 	@PutMapping("/{cartItemId}")
 	public ResponseEntity<CartResponse> updateQuantity(@AuthenticationPrincipal UserDetails userDetails,
-			@PathVariable Long cartItemId, @RequestBody Map<String, Integer> body) {
+			@PathVariable Long cartItemId, @Valid @RequestBody UpdateQuantityRequest request) {
 		return ResponseEntity
-				.ok(cartService.updateQuantity(userDetails.getUsername(), cartItemId, body.get("quantity")));
+				.ok(cartService.updateQuantity(userDetails.getUsername(), cartItemId, request.getQuantity()));
 	}
 
 	@DeleteMapping("/{cartItemId}")
@@ -47,6 +48,6 @@ public class CartController {
 	@DeleteMapping
 	public ResponseEntity<Map<String, String>> clearCart(@AuthenticationPrincipal UserDetails userDetails) {
 		cartService.clearCart(userDetails.getUsername());
-		return ResponseEntity.ok(Map.of("message", "Cart cleared"));
+		return ResponseEntity.ok(Map.of("message", "Cart cleared successfully"));
 	}
 }

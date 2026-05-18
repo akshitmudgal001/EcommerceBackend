@@ -1,15 +1,17 @@
 import axiosInstance from "./axiosInstance";
 
-export const getAllProducts = () =>
-  axiosInstance.get("/products");
+// Paginated — default 12 per page
+export const getAllProducts = (page = 0, size = 12, sort = "newest") =>
+  axiosInstance.get("/products", { params: { page, size, sort } });
 
 export const getProductById = (id) =>
   axiosInstance.get(`/products/${id}`);
 
-export const searchProducts = (keyword, category) =>
+// Paginated search
+export const searchProducts = (keyword, category, page = 0, size = 12) =>
   axiosInstance.get("/products/search", {
-    params: { keyword, category },
+    params: { keyword, category, page, size },
   });
 
 export const addProduct = (data) =>
-  axiosInstance.post("/products", data); 
+  axiosInstance.post("/products", data);
