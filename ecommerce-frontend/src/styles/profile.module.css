@@ -1,0 +1,105 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  font-family: 'Georgia', serif;
+}
+
+.header { margin-bottom: 32px; }
+.title { font-size: 30px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+.sub { font-size: 14px; color: #888; }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 700px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 14px;
+  padding: 28px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  color: white;
+  font-size: 22px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardTitle { font-size: 17px; font-weight: 600; color: #1a1a1a; margin-bottom: 6px; }
+
+.roleBadge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.adminRole { background: #fef9c3; color: #854d0e; }
+.userRole  { background: #eff6ff; color: #1d4ed8; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.label { font-size: 13px; font-weight: 500; color: #444; }
+
+.input {
+  padding: 11px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  color: #1a1a1a;
+  background: white;
+  transition: border-color 0.2s;
+  font-family: 'Georgia', serif;
+}
+.input:focus { border-color: #1a1a1a; }
+.inputError  { border-color: #ef4444 !important; }
+.readOnly    { background: #f9f9f8; color: #888; cursor: not-allowed; }
+
+.hint    { font-size: 12px; color: #aaa; }
+.error   { font-size: 12px; color: #ef4444; }
+.success { font-size: 13px; color: #16a34a; font-weight: 500; margin-bottom: 12px; }
+
+.primaryBtn {
+  width: 100%;
+  padding: 13px;
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+  font-family: 'Georgia', serif;
+}
+.primaryBtn:hover:not(:disabled) { background: #333; }
+.primaryBtn:disabled { background: #999; cursor: not-allowed; }

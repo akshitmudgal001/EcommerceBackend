@@ -90,3 +90,34 @@
   color: #fbbf24 !important;
   background: rgba(245, 158, 11, 0.15) !important;
 }
+.profileBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 4px 12px 4px 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.profileBtn:hover { background: rgba(255,255,255,0.14); }
+
+.profileAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: white;
+  color: #1a1a1a;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profileName {
+  font-size: 13px;
+  color: #ddd;
+  font-weight: 500;
+}

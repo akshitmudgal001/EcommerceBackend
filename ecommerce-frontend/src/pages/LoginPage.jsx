@@ -16,14 +16,20 @@ export default function LoginPage() {
     setErrors({ ...errors, [e.target.name]: "" });
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const res = await loginUser(form);
       const { token, ...userData } = res.data;
       login(userData, token);
-      navigate("/dashboard");
+
+      // Route by role — admin goes to panel, user goes to store
+      if (userData.role === "ADMIN") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     } catch (err) {
       const data = err.response?.data;
       if (typeof data === "object") setErrors(data);

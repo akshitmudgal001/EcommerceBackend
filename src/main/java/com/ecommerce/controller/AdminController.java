@@ -85,4 +85,11 @@ public class AdminController {
 
 		return ResponseEntity.ok(Map.of("message", "Status updated"));
 	}
+
+	// ── Dashboard Stats ───────────────────────────────────
+
+	@GetMapping("/stats")
+	public ResponseEntity<AdminDashboardStats> getDashboardStats() {
+		return ResponseEntity.ok(adminService.getDashboardStats());
+	}
 }

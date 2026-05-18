@@ -26,6 +26,8 @@ public class CartServiceImpl implements CartService {
 	@Autowired
 	private ProductRepository productRepository;
 
+	// ── Mappers ───────────────────────────────────────────────────
+
 	private CartItemResponse mapItem(CartItem item) {
 		CartItemResponse r = new CartItemResponse();
 		r.setCartItemId(item.getCartItemId());
@@ -49,8 +51,10 @@ public class CartServiceImpl implements CartService {
 		return response;
 	}
 
+	// Gets existing cart for user, or creates a new empty one
 	private Cart getOrCreateCart(String email) {
 		User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
 		return cartRepository.findByUser(user).orElseGet(() -> {
 			Cart c = new Cart();
 			c.setUser(user);
@@ -58,38 +62,53 @@ public class CartServiceImpl implements CartService {
 		});
 	}
 
+	// ── Cart Operations ───────────────────────────────────────────
+
 	@Override
 	public CartResponse addToCart(String userEmail, AddToCartRequest request) {
 		Cart cart = getOrCreateCart(userEmail);
 
+		// Block admin from using cart
+		if ("ADMIN".equals(cart.getUser().getRole())) {
+			throw new RuntimeException("Admin accounts cannot use the cart");
+		}
+
 		Product product = productRepository.findById(request.getProductId())
 				.orElseThrow(() -> new RuntimeException("Product not found"));
 
-		if (!product.getActive())
+		if (!product.getActive()) {
 			throw new RuntimeException("Product is not available");
-		if (product.getStock() < request.getQuantity())
+		}
+		if (product.getStock() < request.getQuantity()) {
 			throw new RuntimeException("Not enough stock. Available: " + product.getStock());
+		}
 
+		// If product already in cart — increase quantity
 		Optional<CartItem> existing = cartItemRepository.findByCartAndProduct(cart, product);
 
 		if (existing.isPresent()) {
 			CartItem item = existing.get();
 			int newQty = item.getQuantity() + request.getQuantity();
-			if (newQty > product.getStock())
-				throw new RuntimeException("Total quantity exceeds available stock");
+			if (newQty > product.getStock()) {
+				throw new RuntimeException("Total quantity exceeds available stock. In cart: " + item.getQuantity()
+						+ ", Available: " + product.getStock());
+			}
 			item.setQuantity(newQty);
 			cartItemRepository.save(item);
 		} else {
+			// New product — create new cart item with price snapshot
 			CartItem item = new CartItem();
 			item.setCart(cart);
 			item.setProduct(product);
 			item.setQuantity(request.getQuantity());
-			item.setPrice(product.getPrice());
+			item.setPrice(product.getPrice()); // price locked at time of adding
 			cartItemRepository.save(item);
 		}
 
-		return mapCart(
-				cartRepository.findById(cart.getCartId()).orElseThrow(() -> new RuntimeException("Cart not found")));
+		// Reload to get fresh list with all items
+		Cart updated = cartRepository.findById(cart.getCartId())
+				.orElseThrow(() -> new RuntimeException("Cart not found"));
+		return mapCart(updated);
 	}
 
 	@Override
@@ -105,20 +124,24 @@ public class CartServiceImpl implements CartService {
 				.orElseThrow(() -> new RuntimeException("Cart item not found"));
 
 		// Security — ensure item belongs to this user's cart
-		if (!item.getCart().getCartId().equals(cart.getCartId()))
+		if (!item.getCart().getCartId().equals(cart.getCartId())) {
 			throw new RuntimeException("Item does not belong to your cart");
+		}
 
 		if (quantity <= 0) {
+			// Quantity of 0 or less means remove the item
 			cartItemRepository.delete(item);
 		} else {
-			if (quantity > item.getProduct().getStock())
-				throw new RuntimeException("Not enough stock");
+			if (quantity > item.getProduct().getStock()) {
+				throw new RuntimeException("Not enough stock. Available: " + item.getProduct().getStock());
+			}
 			item.setQuantity(quantity);
 			cartItemRepository.save(item);
 		}
 
-		return mapCart(
-				cartRepository.findById(cart.getCartId()).orElseThrow(() -> new RuntimeException("Cart not found")));
+		Cart updated = cartRepository.findById(cart.getCartId())
+				.orElseThrow(() -> new RuntimeException("Cart not found"));
+		return mapCart(updated);
 	}
 
 	@Override
@@ -128,13 +151,16 @@ public class CartServiceImpl implements CartService {
 		CartItem item = cartItemRepository.findById(cartItemId)
 				.orElseThrow(() -> new RuntimeException("Cart item not found"));
 
-		if (!item.getCart().getCartId().equals(cart.getCartId()))
+		// Security — ensure item belongs to this user's cart
+		if (!item.getCart().getCartId().equals(cart.getCartId())) {
 			throw new RuntimeException("Item does not belong to your cart");
+		}
 
 		cartItemRepository.delete(item);
 
-		return mapCart(
-				cartRepository.findById(cart.getCartId()).orElseThrow(() -> new RuntimeException("Cart not found")));
+		Cart updated = cartRepository.findById(cart.getCartId())
+				.orElseThrow(() -> new RuntimeException("Cart not found"));
+		return mapCart(updated);
 	}
 
 	@Override

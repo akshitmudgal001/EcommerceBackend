@@ -9,27 +9,22 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (!token) {
-      // No token at all — definitely not logged in
       setLoading(false);
       return;
     }
 
-    // Token exists — ask backend if it's still valid
     axiosInstance.get("/auth/me")
       .then((res) => {
-        setUser(res.data); // token valid, restore user
+        // Restore user from server — source of truth
+        setUser(res.data);
       })
       .catch(() => {
-        // Token expired or invalid
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setUser(null);
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, []);
 
   const login = (userData, token) => {
@@ -44,8 +39,16 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  // Show nothing while verifying token — prevents page flash
-  if (loading) return null;
+  if (loading) return (
+    <div style={{
+      minHeight: "100vh", display: "flex",
+      alignItems: "center", justifyContent: "center",
+      background: "#f7f7f5", fontFamily: "Georgia, serif",
+      fontSize: 15, color: "#888"
+    }}>
+      Loading...
+    </div>
+  );
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>

@@ -1,0 +1,199 @@
+.page {
+  padding: 36px 40px 64px;
+  max-width: 1100px;
+  font-family: 'Georgia', serif;
+}
+
+.loading {
+  padding: 80px;
+  text-align: center;
+  color: #888;
+  font-family: 'Georgia', serif;
+}
+
+.pageHeader { margin-bottom: 32px; }
+.pageTitle {
+  font-size: 26px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+.pageSub { font-size: 14px; color: #888; }
+
+/* Stat grid */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 900px) {
+  .statGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.statCard {
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.statCard:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+.statTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.statIcon { font-size: 18px; }
+.statLabel { font-size: 12px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.statValue { font-size: 26px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+.statSub   { font-size: 12px; color: #aaa; }
+
+/* Color accents on left border */
+.statCard.green { border-left: 3px solid #16a34a; }
+.statCard.blue  { border-left: 3px solid #2563eb; }
+.statCard.purple{ border-left: 3px solid #7c3aed; }
+.statCard.amber { border-left: 3px solid #d97706; }
+
+/* Bottom grid */
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 800px) {
+  .bottomGrid { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.panelTitle { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+
+.panelLink {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.panelLink:hover { color: #1a1a1a; }
+
+.emptyMsg { font-size: 14px; color: #aaa; text-align: center; padding: 24px; }
+
+/* Order list */
+.orderList { display: flex; flex-direction: column; }
+.orderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+.orderRow:last-child { border-bottom: none; }
+
+.orderInfo { display: flex; flex-direction: column; gap: 2px; }
+.orderIdText { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+.orderCustomer { font-size: 12px; color: #888; }
+
+.orderRight { display: flex; align-items: center; gap: 12px; }
+.orderAmount { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+
+/* Status pills */
+.statusPill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.statusPill.blue   { background: #eff6ff; color: #1d4ed8; }
+.statusPill.gray   { background: #f3f4f6; color: #374151; }
+.statusPill.amber  { background: #fffbeb; color: #92400e; }
+.statusPill.green  { background: #f0fdf4; color: #166534; }
+.statusPill.red    { background: #fef2f2; color: #991b1b; }
+
+/* Status breakdown */
+.statusBreakdown { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+
+.statusRow { display: flex; align-items: center; gap: 12px; }
+
+.statusLeft { display: flex; align-items: center; gap: 8px; min-width: 85px; }
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.statusDot.blue  { background: #2563eb; }
+.statusDot.gray  { background: #9ca3af; }
+.statusDot.amber { background: #d97706; }
+.statusDot.green { background: #16a34a; }
+.statusDot.red   { background: #dc2626; }
+
+.statusLabel { font-size: 13px; color: #444; }
+
+.statusRight { flex: 1; display: flex; align-items: center; gap: 10px; }
+
+.statusBar {
+  flex: 1;
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.statusBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.statusBarFill.blue  { background: #2563eb; }
+.statusBarFill.gray  { background: #9ca3af; }
+.statusBarFill.amber { background: #d97706; }
+.statusBarFill.green { background: #16a34a; }
+
+.statusCount { font-size: 13px; font-weight: 600; color: #1a1a1a; min-width: 20px; text-align: right; }
+
+/* Quick actions */
+.quickActions { border-top: 1px solid #f0f0f0; padding-top: 18px; }
+.quickTitle { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+.quickBtn {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: #f9f9f8;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 8px;
+  transition: background 0.15s;
+  font-family: 'Georgia', serif;
+}
+.quickBtn:hover { background: #f0f0ee; }

@@ -4,7 +4,8 @@ import com.ecommerce.dto.*;
 import java.util.List;
 
 public interface AdminService {
-	// Products
+	AdminDashboardStats getDashboardStats();
+
 	ProductResponse createProduct(AdminProductRequest request);
 
 	ProductResponse updateProduct(Long id, AdminProductRequest request);
@@ -13,12 +14,10 @@ public interface AdminService {
 
 	List<ProductResponse> getAllProductsAdmin();
 
-	// Users
 	List<UserResponse> getAllUsers();
 
 	void deleteUser(Long id);
 
-	// Carts
 	List<AdminCartView> getAllCarts();
 
 	List<AdminOrderResponse> getAllOrders();

@@ -11,41 +11,56 @@ export default function Navbar() {
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    if (user) {
-      getCart().then(res => setCartCount(res.data.totalItems || 0)).catch(() => {});
+    // Only fetch cart for regular users, not admin
+    if (user && user.role !== "ADMIN") {
+      getCart()
+        .then(res => setCartCount(res.data.totalItems || 0))
+        .catch(() => {});
     }
   }, [user, location.pathname]);
 
   const isActive = (path) => location.pathname.startsWith(path);
 
+  const NAV_LINKS = [
+    { label: "Home",     path: "/dashboard" },
+    { label: "Products", path: "/products"  },
+    { label: "Orders",   path: "/orders"    },
+  ];
+
   return (
     <nav className={styles.nav}>
       <div className={styles.inner}>
+
         <span className={styles.logo} onClick={() => navigate("/dashboard")}>
           ShopApp
         </span>
 
         <div className={styles.links}>
-          <button className={`${styles.link} ${isActive("/dashboard") ? styles.active : ""}`}
-            onClick={() => navigate("/dashboard")}>Home</button>
-          <button className={`${styles.link} ${isActive("/products") ? styles.active : ""}`}
-            onClick={() => navigate("/products")}>Products</button>
-          <button className={`${styles.link} ${isActive("/cart") ? styles.active : ""}`}
+          {NAV_LINKS.map(({ label, path }) => (
+            <button key={path}
+              className={`${styles.link} ${isActive(path) ? styles.active : ""}`}
+              onClick={() => navigate(path)}>
+              {label}
+            </button>
+          ))}
+
+          <button
+            className={`${styles.link} ${isActive("/cart") ? styles.active : ""}`}
             onClick={() => navigate("/cart")}>
             Cart
             {cartCount > 0 && <span className={styles.badge}>{cartCount}</span>}
           </button>
-          {user?.role === "ADMIN" && (
-            <button className={`${styles.link} ${styles.adminLink} ${isActive("/admin") ? styles.active : ""}`}
-              onClick={() => navigate("/admin")}>
-              Admin Panel
-            </button>
-          )}
         </div>
 
         <div className={styles.right}>
-          <span className={styles.userName}>{user?.name}</span>
-          <button className={styles.logoutBtn} onClick={() => { logout(); navigate("/login"); }}>
+          <button className={styles.profileBtn} onClick={() => navigate("/profile")}>
+            <span className={styles.profileAvatar}>
+              {user?.name?.charAt(0).toUpperCase()}
+            </span>
+            <span className={styles.profileName}>{user?.name}</span>
+          </button>
+          <button className={styles.logoutBtn}
+            onClick={() => { logout(); navigate("/login"); }}>
             Logout
           </button>
         </div>

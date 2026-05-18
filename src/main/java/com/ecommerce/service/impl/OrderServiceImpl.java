@@ -28,7 +28,7 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired
 	private ProductRepository productRepository;
 
-	// ─── Mappers ────────────────────────────────────────────────
+	// ── Mappers ───────────────────────────────────────────────────
 
 	private OrderItemResponse mapItem(OrderItem item) {
 		OrderItemResponse r = new OrderItemResponse();
@@ -71,10 +71,10 @@ public class OrderServiceImpl implements OrderService {
 		return r;
 	}
 
-	// ─── Checkout — fully atomic ─────────────────────────────────
-	// @Transactional: if ANY step fails, ALL DB changes roll back
-	// No partial orders, no stock deducted without order, no cleared cart without
-	// order
+	// ── Checkout ──────────────────────────────────────────────────
+	// @Transactional — if ANY step fails, ALL DB changes roll back.
+	// No partial orders. No stock deducted without a saved order.
+	// No cleared cart without a confirmed order.
 
 	@Override
 	@Transactional
@@ -83,23 +83,33 @@ public class OrderServiceImpl implements OrderService {
 		// 1. Load user
 		User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
 
-		// 2. Load cart
-		Cart cart = cartRepository.findByUser(user).orElseThrow(() -> new RuntimeException("No cart found"));
-
-		if (cart.getItems().isEmpty())
-			throw new RuntimeException("Your cart is empty");
-
-		// 3. Validate every item has enough stock before touching anything
-		for (CartItem ci : cart.getItems()) {
-			Product p = ci.getProduct();
-			if (!p.getActive())
-				throw new RuntimeException("'" + p.getName() + "' is no longer available");
-			if (p.getStock() < ci.getQuantity())
-				throw new RuntimeException("Not enough stock for '" + p.getName() + "'. Available: " + p.getStock()
-						+ ", Requested: " + ci.getQuantity());
+		// 2. Admins are managers, not customers
+		if ("ADMIN".equals(user.getRole())) {
+			throw new RuntimeException("Admin accounts cannot place orders");
 		}
 
-		// 4. Calculate prices (T046)
+		// 3. Load user's cart
+		Cart cart = cartRepository.findByUser(user)
+				.orElseThrow(() -> new RuntimeException("No cart found. Add items first."));
+
+		if (cart.getItems().isEmpty()) {
+			throw new RuntimeException("Your cart is empty");
+		}
+
+		// 4. Validate ALL items have sufficient stock before touching anything
+		// This prevents partial processing — either everything succeeds or nothing does
+		for (CartItem ci : cart.getItems()) {
+			Product p = ci.getProduct();
+			if (!p.getActive()) {
+				throw new RuntimeException("'" + p.getName() + "' is no longer available. Remove it from your cart.");
+			}
+			if (p.getStock() < ci.getQuantity()) {
+				throw new RuntimeException("Not enough stock for '" + p.getName() + "'. Available: " + p.getStock()
+						+ ", In your cart: " + ci.getQuantity());
+			}
+		}
+
+		// 5. Calculate prices with proper rounding
 		BigDecimal subtotal = cart.getItems().stream()
 				.map(ci -> ci.getPrice().multiply(BigDecimal.valueOf(ci.getQuantity())))
 				.reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
@@ -108,7 +118,7 @@ public class OrderServiceImpl implements OrderService {
 
 		BigDecimal total = subtotal.add(tax).setScale(2, RoundingMode.HALF_UP);
 
-		// 5. Build shipping address from request
+		// 6. Build shipping address from request DTO
 		ShippingAddressDto addrDto = request.getShippingAddress();
 		ShippingAddress address = new ShippingAddress();
 		address.setFullName(addrDto.getFullName());
@@ -119,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
 		address.setState(addrDto.getState());
 		address.setPincode(addrDto.getPincode());
 
-		// 6. Build Order entity (T047)
+		// 7. Build Order entity
 		Order order = new Order();
 		order.setUser(user);
 		order.setShippingAddress(address);
@@ -128,10 +138,13 @@ public class OrderServiceImpl implements OrderService {
 		order.setTotalAmount(total);
 		order.setPaymentMethod(request.getPaymentMethod());
 		order.setStatus(OrderStatus.CONFIRMED);
+
+		// COD = pay later, anything else = paid now (simulated)
 		order.setPaymentStatus(
 				"COD".equalsIgnoreCase(request.getPaymentMethod()) ? PaymentStatus.PENDING : PaymentStatus.PAID);
 
-		// 7. Build OrderItems + deduct stock (T048 — atomic with @Transactional)
+		// 8. Build OrderItems and deduct stock atomically
+		// All inside the same @Transactional — any failure rolls everything back
 		List<OrderItem> orderItems = new ArrayList<>();
 		for (CartItem ci : cart.getItems()) {
 			Product p = ci.getProduct();
@@ -139,15 +152,15 @@ public class OrderServiceImpl implements OrderService {
 			OrderItem oi = new OrderItem();
 			oi.setOrder(order);
 			oi.setProduct(p);
-			oi.setProductName(p.getName()); // snapshot
+			oi.setProductName(p.getName()); // snapshot — won't change if product is renamed
 			oi.setProductImage(p.getImageUrl() != null ? p.getImageUrl() : "");
 			oi.setQuantity(ci.getQuantity());
-			oi.setUnitPrice(ci.getPrice()); // price snapshot
+			oi.setUnitPrice(ci.getPrice()); // price snapshot — locked at time of order
 			oi.setTotalPrice(ci.getPrice().multiply(BigDecimal.valueOf(ci.getQuantity())));
 
 			orderItems.add(oi);
 
-			// Deduct stock — rolls back if save fails
+			// Deduct stock — if this save fails, @Transactional rolls everything back
 			p.setStock(p.getStock() - ci.getQuantity());
 			productRepository.save(p);
 		}
@@ -155,17 +168,20 @@ public class OrderServiceImpl implements OrderService {
 		order.setOrderItems(orderItems);
 		Order saved = orderRepository.save(order);
 
-		// 8. Clear cart — only happens if order saved successfully
+		// 9. Clear cart — only executes if order was saved successfully
 		cart.getItems().clear();
 		cartRepository.save(cart);
 
 		return mapOrder(saved);
 	}
 
+	// ── Order History ─────────────────────────────────────────────
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<OrderResponse> getUserOrders(String userEmail) {
 		User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
+
 		return orderRepository.findByUserOrderByCreatedAtDesc(user).stream().map(this::mapOrder)
 				.collect(Collectors.toList());
 	}
@@ -174,8 +190,12 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional(readOnly = true)
 	public OrderResponse getOrderById(String userEmail, Long orderId) {
 		User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
+
+		// findByOrderIdAndUser ensures a user can ONLY fetch their own orders
+		// If they try to access someone else's order ID, they get a 400 error
 		Order order = orderRepository.findByOrderIdAndUser(orderId, user)
 				.orElseThrow(() -> new RuntimeException("Order not found"));
+
 		return mapOrder(order);
 	}
 }
